@@ -24,10 +24,12 @@ services:
       
   mongodb:
     container_name: mongodb
-    image: mongo
+    image: mongo-seed
     networks:
-      - nodeapp-network
+    - nodeapp-network
+
 
 networks:
   nodeapp-network:
     driver: bridge
+
