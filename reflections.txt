@@ -1,0 +1,17 @@
+For this Docker assignment, I chose to deploy a microservices-based CRUD application using Node.js and MongoDB. 
+I was inspired by how frequently CRUD systems are used in real-world projects and how they require both a dynamic backend and persistent storage. 
+I incorporated creativity by building a custom MongoDB Docker image that automatically seeds the database using an `init-db.js` file. 
+This enhancement allowed me to automate the data setup without relying on manual steps or external scripts post-deployment.
+
+One of the main challenges I faced was running everything without Docker Compose. 
+Managing inter-container communication manually required me to understand how Docker networking truly works. 
+I had to ensure that both services were on the same custom network (`nodeapp-network`) and troubleshoot name resolution issues. 
+Another hurdle was mounting volumes correctly on Windows using PowerShell syntax, which differs from Linux.
+
+Docker’s features significantly simplified deployment. Docker networks allowed both containers to communicate as if on the same LAN. 
+Volumes made it easy to persist logs and MongoDB data even after restarting containers. 
+Building custom images gave me control over what runs inside each container, and tagging/pushing to Docker Hub made the solution portable.
+
+In a production environment, this app could be improved by adding reverse proxies like Nginx, SSL encryption, environment-based configs, monitoring (e.g., Prometheus/Grafana), 
+and replacing manual scaling with orchestration tools like Docker Swarm or Kubernetes.
+

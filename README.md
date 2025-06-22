@@ -1,59 +1,41 @@
-# Node.js with MongoDB and Docker Demo
-
-Application demo designed to show how Node.js and MongoDB can be run in Docker containers. 
-The app uses Mongoose to create a simple database that stores Docker commands and examples. 
-
-Interested in learning more about Docker? Visit https://www.pluralsight.com/courses/docker-web-development to view my Docker for Web Developers course.
-
-### Starting the Application with Docker Containers:
-
-1. Install [Docker Desktop](https://docker.com/get-started)
-
-2. Open a command prompt.
-
-3. Run the commands listed in `node.dockerfile` (see the comments at the top of the file).
-
-4. Navigate to http://localhost:3000.
-
-
-### Starting the Application with Docker Compose
-
-1. Install [Docker Desktop](https://docker.com/get-started)
-
-2. Open a command prompt at the root of the application's folder.
-
-3. Run `docker compose build`
-
-4. Run `docker compose up`
-
-5. Open another command prompt and run `docker compose ps -a` and note the ID of the Node container
-
-6. Run `docker exec -it <nodeContainerID> sh` (replace <nodeContainerID> with the proper ID) to sh into the container
-
-7. Run `node dbSeeder.js` to seed the MongoDB database
-
-8. Type `exit` to leave the sh session
-
-9. Navigate to http://localhost:3000 (http://192.168.99.100:3000 if using Docker Toolbox) in your browser to view the site. This assumes that's the IP assigned to VirtualBox - change if needed.
-
-10. Run `docker-compose down` to stop the containers and remove them.
-
-## To run the app with Node.js and MongoDB (without Docker):
-
-1. Install and start MongoDB (https://docs.mongodb.com/manual/administration/install-community/).
-
-2. Install the LTS version of Node.js (http://nodejs.org).
-
-3. Open `config/config.development.json` and adjust the host name to your MongoDB server name (`localhost` normally works if you're running locally). 
-
-4. Run `npm install`.
-
-5. Run `node dbSeeder.js` to get the sample data loaded into MongoDB. Exit the command prompt.
-
-6. Run `npm start` to start the server.
-
-7. Navigate to http://localhost:3000 in your browser.
+┌────────────────────┐       docker network        ┌────────────────────────┐
+│  Node.js App       │◀──────────────────────────▶│     MongoDB (Seeded)   │
+│  (Port 3000)       │                            │  Custom Image w/ Init   │
+│  Container: nodeapp│                            │  Container: mongodb     │
+└────────────────────┘                            └──────────────────────── ┘
+        │                                                 ▲
+        │ logs                                            │
+        ▼                                                 │
+   Host Volume: ./logs                          Volume: mongo-data
 
 
 
+docker network create nodeapp-network
+
+docker volume create mongo-data
+
+docker build -f mongo.dockerfile -t mongo-seed .
+
+docker run -d ^
+  --name mongodb ^
+  --network nodeapp-network ^
+  -v mongo-data:/data/db ^
+  mongo-seed
+
+docker build -f node.dockerfile -t nodeapp .
+
+docker run -d ^
+  --name nodeapp ^
+  --network nodeapp-network ^
+  -p 3000:3000 ^
+  -v ${PWD}\logs:/var/www/logs ^
+  -e NODE_ENV=production ^
+  -e APP_VERSION=1.0 ^
+  nodeapp
+
+
+docker ps
+
+Open your browser and go to:
+http://localhost:3000
 
